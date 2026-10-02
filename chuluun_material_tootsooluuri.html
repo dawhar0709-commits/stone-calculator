@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Чулууны материалын тооцоолуур</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#1f2937}
+header{background:#111827;color:white;padding:22px 18px;text-align:center}
+header h1{margin:0 0 6px;font-size:25px}header p{margin:0;color:#d1d5db}
+.container{max-width:1050px;margin:25px auto;padding:0 15px}
+.card{background:white;border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 3px 14px #00000010}
+h2{margin-top:0;font-size:20px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+label{font-size:14px;font-weight:bold;display:block;margin-bottom:6px}
+input,select{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:8px;font-size:15px}
+button{border:0;border-radius:8px;padding:11px 16px;font-size:15px;font-weight:bold;cursor:pointer}
+.add{background:#2563eb;color:white;margin-top:15px}.delete{background:#fee2e2;color:#b91c1c}
+.calculate{background:#111827;color:white;width:100%;margin-top:15px;font-size:17px}
+.item{border:1px solid #e5e7eb;border-radius:12px;padding:15px;margin-bottom:12px}
+.itemhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.itemhead strong{font-size:16px}
+.results{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.result{background:#f9fafb;border-radius:10px;padding:14px}
+.result span{display:block;color:#6b7280;font-size:13px}.result b{display:block;font-size:19px;margin-top:5px}
+.total{background:#ecfdf5}.total b{color:#047857}
+.note{font-size:13px;color:#6b7280;margin-top:10px}
+@media(max-width:700px){.grid,.results{grid-template-columns:1fr}.container{margin-top:12px}}
+</style>
+</head>
+<body>
+<header>
+<h1>🪨 Чулууны материалын тооцоолуур</h1>
+<p>Цонхны тавцан, шат болон бусад чулууны ажлын хэмжээ, хаягдлыг тооцно</p>
+</header>
+
+<div class="container">
+<div class="card">
+<h2>⚙️ Ерөнхий тохиргоо</h2>
+<div class="grid">
+<div><label>Хаягдлын хувь (%)</label><input id="waste" type="number" value="10" min="0" step="0.1"></div>
+<div><label>Чулууны үнэ (1 м² / ¥)</label><input id="price" type="number" value="0" min="0"></div>
+</div>
+</div>
+
+<div class="card">
+<h2>📐 Хэсгүүд</h2>
+<div id="items"></div>
+<button class="add" onclick="addItem()">＋ Хэсэг нэмэх</button>
+<button class="calculate" onclick="calculate()">ТООЦООЛОХ</button>
+</div>
+
+<div class="card">
+<h2>📊 Нийт дүн</h2>
+<div class="results">
+<div class="result"><span>Цэвэр талбай</span><b id="net">0 м²</b></div>
+<div class="result"><span>Хаягдал</span><b id="wasteArea">0 м²</b></div>
+<div class="result total"><span>Захиалах талбай</span><b id="order">0 м²</b></div>
+<div class="result"><span>Нийт үнэ</span><b id="cost">¥0</b></div>
+</div>
+<p class="note">Тооцоолол: урт × өргөн × тоо ÷ 1,000,000 = м². Дараа нь хаягдлын хувийг нэмнэ.</p>
+</div>
+</div>
+
+<script>
+let count=0;
+function addItem(){
+ count++;
+ const div=document.createElement('div');
+ div.className='item';
+ div.id='item'+count;
+ div.innerHTML=`
+ <div class="itemhead"><strong>Хэсэг #${count}</strong>
+ <button class="delete" onclick="this.closest('.item').remove()">Устгах</button></div>
+ <div class="grid">
+ <div><label>Нэр</label><input class="name" placeholder="Жишээ: Цонхны тавцан"></div>
+ <div><label>Урт (mm)</label><input class="length" type="number" min="0" placeholder="1500"></div>
+ <div><label>Өргөн (mm)</label><input class="width" type="number" min="0" placeholder="300"></div>
+ <div><label>Тоо ширхэг</label><input class="qty" type="number" min="1" value="1"></div>
+ </div>`;
+ document.getElementById('items').appendChild(div);
+}
+function calculate(){
+ let net=0;
+ document.querySelectorAll('.item').forEach(item=>{
+   const l=Number(item.querySelector('.length').value)||0;
+   const w=Number(item.querySelector('.width').value)||0;
+   const q=Number(item.querySelector('.qty').value)||0;
+   net += l*w*q/1000000;
+ });
+ const wastePct=Math.max(0,Number(document.getElementById('waste').value)||0);
+ const waste=net*wastePct/100;
+ const order=net+waste;
+ const price=Number(document.getElementById('price').value)||0;
+ document.getElementById('net').textContent=net.toFixed(3)+' м²';
+ document.getElementById('wasteArea').textContent=waste.toFixed(3)+' м²';
+ document.getElementById('order').textContent=order.toFixed(3)+' м²';
+ document.getElementById('cost').textContent='¥'+Math.round(order*price).toLocaleString();
+}
+addItem();
+addItem();
+</script>
+</body>
+</html>
